@@ -135,6 +135,8 @@ jobs:
         cd -
         git config user.name github-actions
         git config user.email github-actions@github.com
+        MANAGER_TAG=$(git describe --match "Manager_[0-9\.\-]*" --abbrev=0)
+        echo "manager_tag=$MANAGER_TAG" >> $GITHUB_OUTPUT
         git tag -a Manager_${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
         
     - name: Push comms changes
@@ -158,7 +160,7 @@ jobs:
         repo: WISE_Manager_Component
         configuration: notes-config.json
         toTag: Manager_${{ steps.version-numbers.outputs.prometheus_version }}
-#         fromTag: ${{ steps.last-tags.outputs.builder_tag }}
+        fromTag: ${{ steps.last-tags.outputs.manager_tag }}
       env:
         GITHUB_TOKEN: ${{ secrets.WISE_PAT }}
 
