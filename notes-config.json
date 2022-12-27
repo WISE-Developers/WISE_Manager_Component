@@ -1,0 +1,9 @@
+{
+  "tag_resolver": {
+    "method": "sort",
+    "filter": {
+      "pattern": "Manager_(.+)",
+      "flags": "gu"
+    }
+  }
+}
