@@ -113,7 +113,6 @@ jobs:
         cd -
         cd WISE_Manager_Ui
         mvn --batch-mode package
-        cd -
         APPLICATION_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec | cut -d "." -f2-)
         APPLICATION_VERSION=$(echo "${APPLICATION_VERSION/-/.}")
         echo "user_friendly_version=$APPLICATION_VERSION" >> $GITHUB_OUTPUT
@@ -125,6 +124,7 @@ jobs:
       run: |
         mkdir zips
         Compress-Archive -DestinationPath zips/WISE_Manager-${{ steps.library-build.outputs.user_friendly_version }}.zip -Path WISE_Manager_Ui/target/WISE_Manager_Ui.jar,WISE_Manager_Ui/target/lib
+
     - name: Tag the repositories
       id: last-tags
       run: |
