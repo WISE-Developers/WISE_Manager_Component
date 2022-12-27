@@ -1,0 +1,171 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: WISE-Developers/versions
+        path: versions
+        token: ${{ secrets.WISE_PAT }}
+    - uses: actions/checkout@v3
+      with:
+        repository: WISE-Developers/WISE_Communications_Module
+        path: WISE_Communications_Module
+        token: ${{ secrets.WISE_PAT }}
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        server-id: github
+    
+    - name: Setup the Maven configuration file
+      uses: whelk-io/maven-settings-xml-action@v21
+      with:
+        servers: '[{ "id": "github", "username": "spydmobile", "password": "${{ secrets.WISE_PAT }}" }, { "id": "github_hss", "username": "tredpath", "password": "${{ secrets.HSS_PAT }}" }]'
+
+    - name: Load values from versions
+      id: version-numbers
+      shell: pwsh
+      run: |
+        $versions = ConvertFrom-StringData (Get-Content versions/versions.properties -raw)
+        echo "Updating to version $($versions.prometheus)"
+        echo "prometheus_version=$($versions.prometheus)" >> $env:GITHUB_OUTPUT
+        echo "hss_math_version=$($versions.hss_math)" >> $env:GITHUB_OUTPUT
+        echo "wtime_version=$($versions.wtime)" >> $env:GITHUB_OUTPUT
+        echo "hss_java_version=$($versions.hss_java)" >> $env:GITHUB_OUTPUT
+      
+    - name: Update the version
+      run: |
+        cd WISE_Communications_Module/WISE_Defaults/java
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:commit
+        cd -
+        cd WISE_Communications_Module/WISE_Status/java
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:commit
+        cd -
+        cd WISE_Communications_Module/WISE_Client_Comms/java
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:commit
+        cd -
+        cd WISE_Communications_Module/WISE_Server_Comms/java
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:commit
+        cd -
+        cd WISE_Manager_Interprocess
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:commit
+        cd -
+        cd WISE_Manager_Lib
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:use-dep-version -Dincludes=ca.hss:hss-java -DdepVersion=${{ steps.version-numbers.outputs.hss_java_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:job-status -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:server-comms -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:wise-defaults -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:client-comms -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:commit
+        cd -
+        cd WISE_Manager_Ui
+        mvn versions:set -DnewVersion=${{ steps.version-numbers.outputs.prometheus_version }}
+        mvn versions:use-dep-version -Dincludes=ca.hss:hss-java -DdepVersion=${{ steps.version-numbers.outputs.hss_java_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:job-status -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:wise-manager-lib -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:use-dep-version -Dincludes=ca.wise:wise-manager-interprocess -DdepVersion=${{ steps.version-numbers.outputs.prometheus_version }} -DforceVersion=true
+        mvn versions:commit
+        cd -       
+    
+    - name: Build the libraries
+      id: library-build
+      run: |
+        cd WISE_Communications_Module/WISE_Defaults/java
+        mvn --batch-mode install
+        cd -
+        cd WISE_Communications_Module/WISE_Client_Comms/java
+        mvn --batch-mode install
+        cd -
+        cd WISE_Communications_Module/WISE_Server_Comms/java
+        mvn --batch-mode install
+        cd -
+        cd WISE_Communications_Module/WISE_Status/java
+        mvn --batch-mode install
+        cd -
+        cd WISE_Manager_Interprocess
+        mvn --batch-mode install
+        cd -
+        cd WISE_Manager_Lib
+        mvn --batch-mode install
+        cd -
+        cd WISE_Manager_Ui
+        mvn --batch-mode package
+        cd -
+        APPLICATION_VERSION=$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec | cut -d "." -f2-)
+        APPLICATION_VERSION=$(echo "${APPLICATION_VERSION/-/.}")
+        echo "user_friendly_version=$APPLICATION_VERSION" >> $GITHUB_OUTPUT
+        CURRENT_DATE=$(date +'%Y%m%d')
+        echo "build_date=$CURRENT_DATE" >> $GITHUB_OUTPUT
+    
+    - name: Archive generated files
+      shell: pwsh
+      run: |
+        mkdir zips
+        Compress-Archive -DestinationPath zips/WISE_Manager-${{ steps.library-build.outputs.user_friendly_version }}.zip -Path WISE_Manager_Ui/target/WISE_Manager_Ui.jar,WISE_Manager_Ui/target/lib
+    - name: Tag the repositories
+      id: last-tags
+      run: |
+        cd WISE_Communications_Module
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag -a Manager_${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
+        cd -
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag -a Manager_${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
+        
+    - name: Push comms changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.WISE_PAT }}
+        repository: WISE-Developers/WISE_Communications_Module
+        directory: WISE_Communications_Module
+        tags: true
+        
+    - name: Push manager changes
+      uses: ad-m/github-push-action@master
+      with:
+        tags: true
+
+    - name: Create Release Notes
+      id: manager-notes
+      uses: mikepenz/release-changelog-builder-action@v3.5.0
+      with:
+        owner: WISE-Developers
+        repo: WISE_Manager_Component
+        configuration: notes-config.json
+        toTag: Manager_${{ steps.version-numbers.outputs.prometheus_version }}
+#         fromTag: ${{ steps.last-tags.outputs.builder_tag }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.WISE_PAT }}
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ steps.version-numbers.outputs.prometheus_version }}
+        body: ${{ steps.manager-notes.outputs.changelog }}
+        files: zips/*.zip
+        tag_name: refs/tags/Manager_${{ steps.version-numbers.outputs.prometheus_version }}
