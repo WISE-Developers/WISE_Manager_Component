@@ -1,0 +1,21 @@
+package ca.wise.manager.ui;
+
+import com.g00fy2.versioncompare.Version;
+
+public class BuildConfig {
+
+	/**
+	 * The W.I.S.E. Manager version.
+	 */
+	public static final Version version = new Version("@buildversion@");
+	
+	/**
+	 * The time that W.I.S.E. Manager was last packaged at.
+	 */
+	public static final String buildTime = "@buildtime@";
+	
+	/**
+	 * Is the application running in a debug configuration.
+	 */
+	public static final boolean debug = @debug@;
+}

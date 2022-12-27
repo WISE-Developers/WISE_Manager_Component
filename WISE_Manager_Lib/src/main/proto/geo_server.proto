@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+option java_package = "ca.wise.geoserver.proto";
+option java_multiple_files = true;
+
+import "google/protobuf/wrappers.proto";
+
+package geoserver;
+
+message ListWorkspace {
+    WorkspaceList workspaces = 1;
+
+    message WorkspaceList {
+        repeated WorkspaceDetails workspace = 1;
+        
+        message WorkspaceDetails {
+            string name = 1;
+
+            string href = 2;
+        }
+    }
+}
+
+message NewWorkspace {
+    WorkspaceName workspace = 1;
+
+    message WorkspaceName {
+        string name = 1;
+
+        google.protobuf.BoolValue enabled = 2;
+    }
+}
+
+message WorkspaceDetails {
+    Workspace workspace = 1;
+
+    message Workspace {
+        string name = 1;
+
+        google.protobuf.BoolValue isolated = 2;
+
+        google.protobuf.StringValue dataStores = 3;
+
+        google.protobuf.StringValue coverageStores = 4;
+
+        google.protobuf.StringValue wmsStores = 5;
+
+        google.protobuf.StringValue wmtsStores = 6;
+    }
+}
+
+message ListCoverageStore {
+    CoverageStoreList coverageStores = 1;
+
+    message CoverageStoreList {
+        repeated CoverageStoreDetails coverageStore = 1;
+        
+        message CoverageStoreDetails {
+            string name = 1;
+
+            string href = 2;
+        }
+    }
+}
+
+message NewCoverageStore {
+    CoverageDetails coverageStore = 1;
+
+    message CoverageDetails {
+        string name = 1;
+
+        string workspace = 2;
+
+        google.protobuf.StringValue url = 3;
+
+        google.protobuf.BoolValue enabled = 4;
+    }
+}
+
+message CoverageStoreDetails {
+    CoverageStore coverageStore = 1;
+
+    message CoverageStore {
+        string name = 1;
+
+        google.protobuf.StringValue description = 2;
+
+        google.protobuf.StringValue type = 3;
+
+        google.protobuf.BoolValue enabled = 4;
+
+        ListWorkspace.WorkspaceList.WorkspaceDetails workspace = 5;
+
+        google.protobuf.BoolValue _default = 6;
+
+        google.protobuf.StringValue url = 7;
+
+        google.protobuf.StringValue coverages = 8;
+    }
+}
+
+message CoverageWrapper {
+    Coverage coverage = 1;
+
+    message Coverage {
+        string name = 1;
+    
+        string srs = 2;
+    
+        bool enabled = 3;
+    }
+}

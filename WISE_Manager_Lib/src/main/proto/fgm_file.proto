@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+option java_package = "ca.wise.fgm.proto";
+option java_multiple_files = true;
+
+import "google/protobuf/wrappers.proto";
+
+package fgm;
+
+message WISEData {
+    /**
+     * Information needed to start W.I.S.E..
+     */
+    SimulationSettings settings = 1;
+    
+    Project project = 2;
+
+    message SimulationSettings {
+        /**
+         * Settings for log output.
+         */
+        LogFile logfile = 1;
+        /**
+         * The files that will signal various stages of the job.
+         */
+        JobSignals signals = 2;
+        /**
+         * Hardware parameters needed to start W.I.S.E..
+         */
+        HardwareSettings hardware = 3;
+        /**
+         * The MQTT configuration.
+         */
+        MqttSettings mqtt = 4;
+
+        message LogFile {
+            /**
+             * The path of the log file relative to the jobs root directory.
+             */
+            string filename = 1;
+            /**
+             * The verbosity of the log output.
+             */
+            Verbosity verbosity = 2;
+        }
+
+        enum Verbosity {
+            NONE = 0;
+            SEVERE = 1;
+            WARN = 2;
+            INFO = 3;
+            MAX = 4;
+        }
+
+        //probably not needed anymore with MQTT
+        message JobSignals {
+            /**
+             * The name of the file that will signal the job to start.
+             * This will be a path relative to the jobs root directory.
+             */
+            string startFilename = 1;
+            /**
+             * The name of the file that will signal that the job is complete.
+             * This will be a path relative to the jobs root directory.
+             */
+            string completeFilename = 2;
+        }
+
+        message HardwareSettings {
+            /**
+             * The number of cores to use per job.
+             */
+            int32 cores = 1;
+            /**
+             * The number of concurrent jobs to run.
+             */
+            int32 processes = 2;
+        }
+
+        message MqttSettings {
+            string hostname = 1;
+            google.protobuf.Int32Value port = 2;
+            google.protobuf.StringValue username = 3;
+            google.protobuf.StringValue password = 4;
+            string topic = 5;
+            bool debug = 6;
+            google.protobuf.Int32Value qos = 7;
+            google.protobuf.StringValue userkey = 8;
+            Verbosity verbosity = 9;
+        }
+    }
+
+    message Project {
+        //The type of load balancing to use
+        LoadBalancingType loadBalancing = 18;
+
+        /**
+         * The type of load balancing to enable.
+         */
+        enum LoadBalancingType {
+            //Don't use load balancing
+            NONE = 0;
+            //Use a per scenario/sub-scenario load balancing scheme that requires an external counter
+            EXTERNAL_COUNTER = 1;
+        }
+    }
+}

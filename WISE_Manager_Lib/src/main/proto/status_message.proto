@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "ca.wise.fgm.proto";
+option java_multiple_files = true;
+
+package fgm;
+
+/**
+ * A message about the status of a W.I.S.E. job.
+ */
+message Status {
+    //The status code.
+    int32 status = 1;
+
+    //A message about the status.
+    string message = 2;
+}

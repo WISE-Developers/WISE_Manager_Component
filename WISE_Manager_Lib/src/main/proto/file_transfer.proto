@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option java_package = "ca.wise.rpc.proto";
+option java_outer_classname = "GenericFileServerProto";
+option java_multiple_files = true;
+
+package rpc;
+
+// Server methods for receiving fgm files.
+service GenericFileServer {
+
+    // Stream a generic file from the client to the server.
+    rpc SendGenericFile(stream GenericFileChunk) returns (GenericFileResult) { }
+}
+
+// Part of a generic file, for transferring outputs.
+message GenericFileChunk {
+    // The name of the job that the file is for.
+    string name = 1;
+
+    // The name of the file that is being transferred. May include a path component.
+    string filename = 2;
+
+    // The bytes from the file.
+    bytes data = 3;
+}
+
+// Return value for streaming a file.
+message GenericFileResult {
+}
