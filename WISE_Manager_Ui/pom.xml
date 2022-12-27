@@ -47,12 +47,12 @@
     </dependency>
     <dependency>
       <groupId>ca.wise</groupId>
-      <artifactId>WISE_Manager_Lib</artifactId>
+      <artifactId>wise-manager-lib</artifactId>
       <version>7.2022.12.00</version>
     </dependency>
     <dependency>
       <groupId>ca.wise</groupId>
-      <artifactId>WISE_Manager_Interprocess</artifactId>
+      <artifactId>wise-manager-interprocess</artifactId>
       <version>7.2022.12.00</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.fifesoft/rsyntaxtextarea -->

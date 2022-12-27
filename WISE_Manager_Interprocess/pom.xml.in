@@ -2,10 +2,10 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wise</groupId>
-  <artifactId>WISE_Manager_Interprocess</artifactId>
+  <artifactId>wise-manager-interprocess</artifactId>
   <packaging>jar</packaging>
   <version>@PROMETHEUS_VERSION@</version>
-  <name>WISE Manager Interprocess</name>
+  <name>WISE_Manager_Interprocess</name>
   <url>http://maven.apache.org</url>
   <properties>
   	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
