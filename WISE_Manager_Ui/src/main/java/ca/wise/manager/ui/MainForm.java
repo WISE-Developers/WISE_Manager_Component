@@ -220,8 +220,8 @@ class MainForm extends JFrame implements Translated {
 	 */
 	private void initializeSharedMemory() {
         try {
-            NamedMutex sharedMutex = new NamedMutex("lock.WISE7");
-            SharedMemory sharedMemory = new SharedMemory("memory.WISE7");
+            NamedMutex sharedMutex = new NamedMutex("lock.WISE");
+            SharedMemory sharedMemory = new SharedMemory("memory.WISE");
             systemMemory = new SharedBlock(sharedMutex, sharedMemory);
             systemMemory.updateConfig((byte)Settings.getProcesses(), (short)Settings.getSkipProcesses(), Settings.getNumaLock());
         }
