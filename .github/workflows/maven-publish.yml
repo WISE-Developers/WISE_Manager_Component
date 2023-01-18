@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - uses: actions/checkout@v3
       with:
         repository: WISE-Developers/versions
@@ -37,7 +39,7 @@ jobs:
     - name: Setup the Maven configuration file
       uses: whelk-io/maven-settings-xml-action@v21
       with:
-        servers: '[{ "id": "github", "username": "spydmobile", "password": "${{ secrets.WISE_PAT }}" }, { "id": "github_hss", "username": "tredpath", "password": "${{ secrets.HSS_PAT }}" }]'
+        servers: '[{ "id": "github", "username": "spydmobile", "password": "${{ secrets.WISE_PAT }}" }, { "id": "github_hss", "username": "spydmobile", "password": "${{ secrets.WISE_PAT }}" }]'
 
     - name: Load values from versions
       id: version-numbers
@@ -90,6 +92,38 @@ jobs:
         mvn versions:commit
         cd -       
     
+    - name: Download protobuf
+      shell: pwsh
+      run: |
+        Invoke-WebRequest "https://heartlandsoftwaresolutions.sharepoint.com/:u:/g/HSS_Releases/EUZ4knsEFP5FjNHHWR5dHc0BofAFyEPdLKRvzAgaTuDi1w?e=XW0Muc&download=1" -OutFile protobuf.zip
+        Expand-Archive protobuf.zip -DestinationPath protobuf
+        mv protobuf/protobuf-3.${{ env.PROTO_VERSION }}/* protobuf
+        
+    - name: Build protobuf
+      shell: pwsh
+      run: |
+        cd protobuf
+        cd cmake
+        mkdir build
+        cd build
+        cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+        cmake --build . --target protoc
+        
+    - name: Build Proto definition files
+      shell: pwsh
+      run: |
+        cd WISE_Communications_Module/WISE_Defaults
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out java/src/main/java --proto_path ../../protobuf/src --proto_path proto wise_config.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out java/src/main/java --proto_path ../../protobuf/src --proto_path proto wise_defaults.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out java/src/main/java --proto_path ../../protobuf/src --proto_path proto manager_settings.proto
+        cd ../WISE_Client_Comms
+        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
+        cd ../WISE_Server_Comms
+        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
+        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto validation_report.proto
+        cd ../WISE_Status
+        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto status.proto
+        
     - name: Build the libraries
       id: library-build
       run: |
@@ -135,7 +169,7 @@ jobs:
         cd -
         git config user.name github-actions
         git config user.email github-actions@github.com
-        MANAGER_TAG=$(git describe --match "Manager_[0-9\.\-]*" --abbrev=0)
+        MANAGER_TAG=$(git describe --match "Manager_[A-Za-z0-9\.\-]*" --abbrev=0)
         echo "manager_tag=$MANAGER_TAG" >> $GITHUB_OUTPUT
         git tag -a Manager_${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
         
