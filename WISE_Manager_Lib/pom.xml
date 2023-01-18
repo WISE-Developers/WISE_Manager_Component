@@ -157,43 +157,43 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>3.13.0</version>
+      <version>3.21.10</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util -->
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java-util</artifactId>
-      <version>3.13.0</version>
+      <version>3.21.10</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.grpc/grpc-core -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-core</artifactId>
-      <version>1.26.0</version>
+      <version>1.51.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-http2 -->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-codec-http2</artifactId>
-      <version>4.1.42.Final</version>
+      <version>4.1.79.Final</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.grpc/grpc-protobuf -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-protobuf</artifactId>
-      <version>1.26.0</version>
+      <version>1.51.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.grpc/grpc-stub -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-stub</artifactId>
-      <version>1.26.0</version>
+      <version>1.51.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/io.grpc/grpc-netty -->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty</artifactId>
-      <version>1.26.0</version>
+      <version>1.51.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.konghq/unirest-java -->
     <dependency>
