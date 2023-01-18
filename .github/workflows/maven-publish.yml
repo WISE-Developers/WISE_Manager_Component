@@ -120,12 +120,12 @@ jobs:
         ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out java/src/main/java --proto_path ../../protobuf/src --proto_path proto wise_defaults.proto
         ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out java/src/main/java --proto_path ../../protobuf/src --proto_path proto manager_settings.proto
         cd ../WISE_Client_Comms
-        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
         cd ../WISE_Server_Comms
-        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
-        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto validation_report.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto file_upload.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto validation_report.proto
         cd ../WISE_Status
-        ../../protobuf/cmake/build/Release/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto status.proto
+        ../../protobuf/cmake/build/protoc --experimental_allow_proto3_optional --java_out=java/src/main/java --proto_path ../../protobuf/src --proto_path proto status.proto
         
     - name: Build the libraries
       id: library-build
