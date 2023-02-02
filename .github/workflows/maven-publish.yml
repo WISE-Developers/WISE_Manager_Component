@@ -172,9 +172,9 @@ jobs:
         cd -
         git config user.name github-actions
         git config user.email github-actions@github.com
-        MANAGER_TAG=$(git describe --match "Manager_[A-Za-z0-9\.\-]*" --abbrev=0)
+        MANAGER_TAG=$(git describe --abbrev=0 --tags)
         echo "manager_tag=$MANAGER_TAG" >> $GITHUB_OUTPUT
-        git tag -a Manager_${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
+        git tag -a ${{ steps.version-numbers.outputs.prometheus_version }} -m "W.I.S.E. Manager release on $(date +'%Y-%m-%d') for commit $(git rev-parse HEAD)"
         
     - name: Push comms changes
       uses: ad-m/github-push-action@master
@@ -196,7 +196,7 @@ jobs:
         owner: WISE-Developers
         repo: WISE_Manager_Component
         configuration: notes-config.json
-        toTag: Manager_${{ steps.version-numbers.outputs.prometheus_version }}
+        toTag: ${{ steps.version-numbers.outputs.prometheus_version }}
         fromTag: ${{ steps.last-tags.outputs.manager_tag }}
       env:
         GITHUB_TOKEN: ${{ secrets.WISE_PAT }}
@@ -207,4 +207,4 @@ jobs:
         name: ${{ steps.version-numbers.outputs.prometheus_version }}
         body: ${{ steps.manager-notes.outputs.changelog }}
         files: zips/*.zip
-        tag_name: refs/tags/Manager_${{ steps.version-numbers.outputs.prometheus_version }}
+        tag_name: refs/tags/${{ steps.version-numbers.outputs.prometheus_version }}
